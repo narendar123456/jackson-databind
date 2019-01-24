@@ -16,8 +16,10 @@ public class BooleanNode
 {
     // // Just need two instances...
 
-    public final static BooleanNode TRUE = new BooleanNode(true);
-    public final static BooleanNode FALSE = new BooleanNode(false);
+//    public final static BooleanNode TRUE = new BooleanNode(true);
+//    public final static BooleanNode FALSE = new BooleanNode(false);
+//    public BooleanNode TRUE = new BooleanNode(true);
+//    public BooleanNode FALSE = new BooleanNode(false);
 
     private final boolean _value;
 
@@ -25,12 +27,14 @@ public class BooleanNode
      *<p>
      * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
      */
-    protected BooleanNode(boolean v) { _value = v; }
+    public BooleanNode(boolean v) { _value = v; }
 
-    public static BooleanNode getTrue() { return TRUE; }
-    public static BooleanNode getFalse() { return FALSE; }
+    public BooleanNode getTrue() { return new BooleanNode(true); }
+    public BooleanNode getFalse() { return new BooleanNode(false); }
 
-    public static BooleanNode valueOf(boolean b) { return b ? TRUE : FALSE; }
+//    public static BooleanNode valueOf(boolean b) { return b ? TRUE : FALSE; }
+    public static BooleanNode valueOf(boolean b) { return new BooleanNode(b); }
+
 
     @Override
     public JsonNodeType getNodeType() {

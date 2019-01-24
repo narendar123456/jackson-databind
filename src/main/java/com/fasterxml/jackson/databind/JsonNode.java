@@ -48,6 +48,8 @@ public abstract class JsonNode
     
     protected JsonNode() { }
 
+    public JsonNode parentNode = null;
+
     /**
      * Method that can be called to get a node that is guaranteed
      * not to allow changing of this node through mutators on

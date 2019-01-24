@@ -2497,6 +2497,20 @@ public class ObjectMapper
         return _readTreeAndClose(_jsonFactory.createParser(in));
     }
 
+
+    /**
+     * Apart from deserialize to json tree, this method sets the parent to node, so that traversing from child to
+     * parent is possible.
+     * @param in
+     * @param setParent
+     * @return jsonNode
+     * @throws IOException
+     */
+    public JsonNode readTree(InputStream in , boolean setParent) throws IOException
+    {
+        return _readTreeAndClose(_jsonFactory.createParser(in) , setParent);
+    }
+
     /**
      * Method to deserialize JSON content as tree expressed
      * using set of {@link JsonNode} instances.
@@ -2523,6 +2537,19 @@ public class ObjectMapper
     public JsonNode readTree(Reader r) throws IOException {
         return _readTreeAndClose(_jsonFactory.createParser(r));
     }
+
+    /**
+     * Apart from deserialize to json tree, this method sets the parent to node, so that traversing from child to
+     * parent is possible.
+     * @param r
+     * @param setParent
+     * @return jsonNode
+     * @throws IOException
+     */
+    public JsonNode readTree(Reader r , boolean setParent) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(r) , setParent);
+    }
+
 
     /**
      * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
@@ -2552,6 +2579,18 @@ public class ObjectMapper
     }
 
     /**
+     * Apart from deserialize to json tree, this method sets the parent to node, so that traversing from child to
+     * parent is possible.
+     * @param content
+     * @param setParent
+     * @return jsonNode
+     * @throws IOException
+     */
+    public JsonNode readTree(String content , boolean setParent) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(content) , setParent);
+    }
+
+    /**
      * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
      * Returns root of the resulting tree (where root can consist of just a single node if the current
      * event is a value event, not container).
@@ -2569,6 +2608,18 @@ public class ObjectMapper
      */
     public JsonNode readTree(byte[] content) throws IOException {
         return _readTreeAndClose(_jsonFactory.createParser(content));
+    }
+
+    /**
+     * Apart from deserialize to json tree, this method sets the parent to node, so that traversing from child to
+     * parent is possible.
+     * @param content
+     * @param setParent
+     * @return
+     * @throws IOException
+     */
+    public JsonNode readTree(byte[] content , boolean setParent) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(content) , setParent);
     }
     
     /**
@@ -2598,6 +2649,21 @@ public class ObjectMapper
     }
 
     /**
+     * Apart from deserialize to json tree, this method sets the parent to node, so that traversing from child to
+     * parent is possible.
+     * @param file
+     * @param setParent
+     * @return jsonNode
+     * @throws IOException
+     * @throws JsonProcessingException
+     */
+    public JsonNode readTree(File file , boolean setParent)
+            throws IOException, JsonProcessingException
+    {
+        return _readTreeAndClose(_jsonFactory.createParser(file) , setParent);
+    }
+
+    /**
      * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
      * Returns root of the resulting tree (where root can consist of just a single node if the current
      * event is a value event, not container).
@@ -2620,6 +2686,19 @@ public class ObjectMapper
     public JsonNode readTree(URL source) throws IOException {
         return _readTreeAndClose(_jsonFactory.createParser(source));
     }
+
+    /**
+     * Apart from deserialize to json tree, this method sets the parent to node, so that traversing from child to
+     * parent is possible.
+     * @param source
+     * @param setParent
+     * @return jsonNode
+     * @throws IOException
+     */
+    public JsonNode readTree(URL source , boolean setParent) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(source) , setParent);
+    }
+
 
     /*
     /**********************************************************
@@ -4027,7 +4106,7 @@ public class ObjectMapper
      *
      * @since 2.9
      */
-    protected JsonNode _readTreeAndClose(JsonParser p0) throws IOException
+    protected JsonNode _readTreeAndClose(JsonParser p0 ) throws IOException
     {
         try (JsonParser p = p0) {
             final JavaType valueType = JSON_NODE_TYPE;
@@ -4060,7 +4139,40 @@ public class ObjectMapper
             }
             // No ObjectIds so can ignore
 //            ctxt.checkUnresolvedObjectId();
+
+
+
             return (JsonNode) result;
+        }
+    }
+
+
+    protected JsonNode _readTreeAndClose(JsonParser p0 , boolean setParent ) throws IOException
+    {
+        JsonNode rootNode = _readTreeAndClose(p0);
+
+        if(setParent) {
+            populateParentNodeInJsonTree(rootNode , null);
+        }
+
+        return rootNode;
+    }
+
+    private void populateParentNodeInJsonTree(JsonNode jsonNode, JsonNode parentNode) throws IOException {
+
+        if(jsonNode.isArray()){
+            for(JsonNode arrayElementNode : jsonNode) {
+                populateParentNodeInJsonTree(arrayElementNode, jsonNode);
+            }
+        }
+
+        jsonNode.parentNode = parentNode;
+        Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
+
+        while(iterator.hasNext() ) {
+            Map.Entry<String, JsonNode> property = iterator.next();
+            JsonNode childNode = property.getValue();
+            populateParentNodeInJsonTree(childNode, jsonNode);
         }
     }
 

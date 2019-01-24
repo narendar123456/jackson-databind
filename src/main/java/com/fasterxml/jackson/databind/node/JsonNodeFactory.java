@@ -98,7 +98,7 @@ public class JsonNodeFactory
      */
     @Override
     public BooleanNode booleanNode(boolean v) {
-        return v ? BooleanNode.getTrue() : BooleanNode.getFalse();
+        return v ? new BooleanNode(true) : new BooleanNode(false);
     }
 
     /**
